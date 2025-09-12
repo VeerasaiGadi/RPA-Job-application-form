@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Application Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background: linear-gradient(135deg, #D4AF37, #FFD700);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: auto;
+      position: relative;
+      background-size: 40px 40px;
+      background-image: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.05) 0, rgba(0, 0, 0, 0.05) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0, rgba(0, 0, 0, 0.05) 1px, transparent 1px, transparent 20px);
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 15px rgba(212, 175, 55, 0.5);
+      width: 100%;
+      max-width: 550px;
+      padding: 40px;
+      text-align: center;
+      animation: fadeIn 1s ease-out;
+      transition: filter 0.3s ease;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: #1c2526;
+      margin-bottom: 30px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      font-size: 0.95rem;
+      color: #1c2526;
+      margin-bottom: 8px;
+      text-align: left;
+      font-weight: 500;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #D4AF37;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      animation: slideIn 0.5s ease-out forwards;
+      animation-delay: calc(var(--index) * 0.1s);
+      background: #fffaf0;
+    }
+    input:focus {
+      outline: none;
+      border-color: #FFD700;
+      box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
+      background: white;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    button {
+      background: linear-gradient(145deg, #D4AF37, #FFD700);
+      color: #1c2526;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: linear-gradient(145deg, #C19A2B, #FFC107);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    button.reset {
+      background: linear-gradient(145deg, #A67B00, #D4AF37);
+    }
+    button.reset:hover {
+      background: linear-gradient(145deg, #8A5A00, #C19A2B);
+    }
+    .result {
+      padding: 20px;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 600;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+      animation: popUp 0.5s ease-out;
+    }
+    @keyframes popUp {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .approved {
+      background: linear-gradient(145deg, #34d399, #047857);
+    }
+    .rejected {
+      background: linear-gradient(145deg, #ef4444, #b91c1c);
+    }
+    .pending {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #1c2526;
+      font-weight: 500;
+    }
+    .spinner {
+      border: 4px solid #fffaf0;
+      border-top: 4px solid #FFD700;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1.5s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .blurred {
+      filter: blur(6px);
+    }
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+    }
+    .close-button:hover {
+      background: rgba(0, 0, 0, 0.6);
+    }
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1100;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <h1>RPA Job Application Form</h1>
+    <form id="applicationForm">
+      <!-- Name Field -->
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" required placeholder="Enter your full name" style="--index: 1;">
+
+      <!-- Secondary Education -->
+      <label for="secondaryInstitution">Educational Institution – Secondary (10th Standard / SSC)</label>
+      <input type="text" id="secondaryInstitution" name="secondaryInstitution" required placeholder="Enter your secondary school name" style="--index: 2;">
+
+      <label for="secondaryGrade">Secondary School Percentage</label>
+      <input type="number" id="secondaryGrade" name="secondaryGrade" required placeholder="Enter your grade or percentage" style="--index: 3;">
+
+      <!-- Higher Secondary Education -->
+      <label for="higherSecondaryInstitution">Educational Institution – Higher Secondary (12th Standard / HSC)</label>
+      <input type="text" id="higherSecondaryInstitution" name="higherSecondaryInstitution" required placeholder="Enter your higher secondary school name" style="--index: 4;">
+
+      <label for="higherSecondaryGrade">Higher Secondary Percentage</label>
+      <input type="number" id="higherSecondaryGrade" name="higherSecondaryGrade" required placeholder="Enter your score or percentage" style="--index: 5;">
+
+      <!-- Undergraduate Education -->
+      <label for="undergraduateInstitution">Educational Institution – Undergraduate (Degree)</label>
+      <input type="text" id="undergraduateInstitution" name="undergraduateInstitution" required placeholder="Enter your undergraduate institution name" style="--index: 6;">
+
+      <label for="undergraduateGrade">Undergraduate Percentage</label>
+      <input type="number" id="undergraduateGrade" name="undergraduateGrade" required placeholder="Enter your grade or percentage" style="--index: 7;">
+
+      <!-- Button Group -->
+      <div class="button-group">
+        <button type="submit">Submit Application</button>
+        <button type="button" class="reset" onclick="document.getElementById('applicationForm').reset(); document.getElementById('resultSection').style.display = 'none';">Reset Form</button>
+      </div>
+    </form>
+
+    <div id="resultSection" style="display: none;">
+      <p id="applicationId" class="pending">Application ID: <span id="appId"></span></p>
+      <div class="spinner" id="spinner"></div>
+    </div>
+  </div>
+
+  <div id="modalOverlay" class="modal-overlay">
+    <div id="resultBanner" class="result">
+      <button class="close-button" onclick="closeModal()">×</button>
+      <span id="resultText"></span>
+    </div>
+  </div>
+  <canvas id="confettiCanvas"></canvas>
+
+  <script>
+    const form = document.getElementById('applicationForm');
+    const resultSection = document.getElementById('resultSection');
+    const spinner = document.getElementById('spinner');
+    const resultBanner = document.getElementById('resultBanner');
+    const resultText = document.getElementById('resultText');
+    const appIdElement = document.getElementById('appId');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const container = document.getElementById('app');
+    // Use local audio files
+    const clapAudio = new Audio('./audio/clap.wav'); // Adjust path to your local file
+    const buzzerAudio = new Audio('./audio/buzzer.mp3'); // Adjust path to your local file
+
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      container.classList.remove('blurred');
+      resultBanner.className = 'result';
+      resultText.textContent = '';
+      clapAudio.pause();
+      clapAudio.currentTime = 0;
+      buzzerAudio.pause();
+      buzzerAudio.currentTime = 0;
+    }
+
+    function launchConfetti() {
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1100 };
+
+      function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      const interval = setInterval(function () {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+          colors: ['#D4AF37', '#FFD700', '#FFFFFF'],
+        });
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+          colors: ['#D4AF37', '#FFD700', '#FFFFFF'],
+        });
+        confetti({
+          ...defaults,
+          particleCount: 10,
+          spread: 60,
+          flat: true,
+          origin: { x: randomInRange(0.2, 0.8), y: -0.1 },
+          colors: ['#D4AF37', '#FFD700'],
+          shapes: ['square'],
+          scalar: 2,
+        });
+      }, 250);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // Generate random application ID
+      const randomId = Math.floor(100000 + Math.random() * 900000);
+      appIdElement.textContent = randomId;
+
+      // Show pending state
+      resultSection.style.display = 'block';
+      spinner.style.display = 'block';
+      closeModal();
+
+      setTimeout(() => {
+        const secondaryGrade = parseFloat(document.getElementById('secondaryGrade').value);
+        const higherSecondaryGrade = parseFloat(document.getElementById('higherSecondaryGrade').value);
+        const undergraduateGrade = parseFloat(document.getElementById('undergraduateGrade').value);
+
+        // Updated logic: Approve if any grade > 80% or > 8.0
+        const isApproved = secondaryGrade > 80 && higherSecondaryGrade > 80 && undergraduateGrade > 80 &&
+                          secondaryGrade > 8.0 && higherSecondaryGrade > 8.0 && undergraduateGrade > 8.0;
+
+        // Hide spinner and show modal
+        spinner.style.display = 'none';
+        container.classList.add('blurred');
+        modalOverlay.classList.add('active');
+
+        // Show result banner
+        if (isApproved) {
+          resultText.textContent = 'Application Approved! Hurray!';
+          resultBanner.classList.add('approved');
+          launchConfetti();
+          clapAudio.play().catch(e => console.log('Audio play failed:', e));
+        } else {
+          resultText.textContent = 'Application Rejected!';
+          resultBanner.classList.add('rejected');
+          buzzerAudio.play().catch(e => console.log('Audio play failed:', e));
+        }
+      }, 10000); // Simulate 10 seconds pending state
+    });
+  </script>
+</body>
+</html>
