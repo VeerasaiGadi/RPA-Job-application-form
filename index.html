@@ -127,7 +127,7 @@
     .pending {
       margin-top: 20px;
       font-size: 1rem;
-      color: #1c2526;
+      color: #fdfdfd;
       font-weight: 500;
     }
     .spinner {
@@ -229,7 +229,6 @@
     </form>
 
     <div id="resultSection" style="display: none;">
-      <p id="applicationId" class="pending">Application ID: <span id="appId"></span></p>
       <div class="spinner" id="spinner"></div>
     </div>
   </div>
@@ -237,6 +236,7 @@
   <div id="modalOverlay" class="modal-overlay">
     <div id="resultBanner" class="result">
       <button class="close-button" onclick="closeModal()">×</button>
+      <p id="applicationId" class="pending">Application ID: <span id="appId"></span></p>
       <span id="resultText"></span>
     </div>
   </div>
@@ -336,7 +336,7 @@
 
         // Show result banner
         if (isApproved) {
-          resultText.textContent = 'Application Approved! Hurray!';
+          resultText.textContent = 'Application Approved!';
           resultBanner.classList.add('approved');
           launchConfetti();
           clapAudio.play().catch(e => console.log('Audio play failed:', e));
@@ -345,7 +345,7 @@
           resultBanner.classList.add('rejected');
           buzzerAudio.play().catch(e => console.log('Audio play failed:', e));
         }
-      }, 10000); // Simulate 10 seconds pending state
+      }, 2000); // Simulate 10 seconds pending state
     });
   </script>
 </body>
