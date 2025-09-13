@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Application Form</title>
+  <title>RPA Job Application Form</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
@@ -120,14 +120,18 @@
     }
     .approved {
       background: linear-gradient(145deg, #34d399, #047857);
+      padding: 5px 10px;
+      border-radius: 5px;
     }
     .rejected {
       background: linear-gradient(145deg, #ef4444, #b91c1c);
+      padding: 5px 10px;
+      border-radius: 5px;
     }
     .pending {
       margin-top: 20px;
       font-size: 1rem;
-      color: #fdfdfd;
+      color: #1c2526;
       font-weight: 500;
     }
     .spinner {
@@ -143,44 +147,6 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .modal-overlay.active {
-      display: flex;
-    }
-    .blurred {
-      filter: blur(6px);
-    }
-    .close-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.4);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      cursor: pointer;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s ease;
-    }
-    .close-button:hover {
-      background: rgba(0, 0, 0, 0.6);
-    }
     #confettiCanvas {
       position: fixed;
       top: 0;
@@ -189,6 +155,13 @@
       height: 100%;
       pointer-events: none;
       z-index: 1100;
+    }
+    #applicationId .id-line {
+      display: block;
+    }
+    #applicationId .status-line {
+      display: block;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -229,15 +202,11 @@
     </form>
 
     <div id="resultSection" style="display: none;">
+      <div id="applicationId" class="pending">
+        <div class="id-line"><span>Application ID: </span><span id="appId"></span></div>
+        <div class="status-line"><span class="status"></span></div>
+      </div>
       <div class="spinner" id="spinner"></div>
-    </div>
-  </div>
-
-  <div id="modalOverlay" class="modal-overlay">
-    <div id="resultBanner" class="result">
-      <button class="close-button" onclick="closeModal()">×</button>
-      <p id="applicationId" class="pending">Application ID: <span id="appId"></span></p>
-      <span id="resultText"></span>
     </div>
   </div>
   <canvas id="confettiCanvas"></canvas>
@@ -246,25 +215,16 @@
     const form = document.getElementById('applicationForm');
     const resultSection = document.getElementById('resultSection');
     const spinner = document.getElementById('spinner');
-    const resultBanner = document.getElementById('resultBanner');
-    const resultText = document.getElementById('resultText');
     const appIdElement = document.getElementById('appId');
-    const modalOverlay = document.getElementById('modalOverlay');
+    const statusElement = document.querySelector('#applicationId .status');
     const container = document.getElementById('app');
     // Use local audio files
     const clapAudio = new Audio('./audio/clap.wav'); // Adjust path to your local file
     const buzzerAudio = new Audio('./audio/buzzer.mp3'); // Adjust path to your local file
 
-    function closeModal() {
-      modalOverlay.classList.remove('active');
-      container.classList.remove('blurred');
-      resultBanner.className = 'result';
-      resultText.textContent = '';
-      clapAudio.pause();
-      clapAudio.currentTime = 0;
-      buzzerAudio.pause();
-      buzzerAudio.currentTime = 0;
-    }
+    // Check if audio files load
+    clapAudio.addEventListener('error', () => console.log('Clap audio failed to load. Check path: ./audio/clap.wav'));
+    buzzerAudio.addEventListener('error', () => console.log('Buzzer audio failed to load. Check path: ./audio/buzzer.mp3'));
 
     function launchConfetti() {
       const duration = 3 * 1000;
@@ -311,41 +271,38 @@
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      // Generate random application ID
-      const randomId = Math.floor(100000 + Math.random() * 900000);
+      // Generate random application ID with a leading space
+      const randomId = ' ' + Math.floor(100000 + Math.random() * 900000);
       appIdElement.textContent = randomId;
 
       // Show pending state
       resultSection.style.display = 'block';
       spinner.style.display = 'block';
-      closeModal();
 
       setTimeout(() => {
         const secondaryGrade = parseFloat(document.getElementById('secondaryGrade').value);
         const higherSecondaryGrade = parseFloat(document.getElementById('higherSecondaryGrade').value);
         const undergraduateGrade = parseFloat(document.getElementById('undergraduateGrade').value);
 
-        // Updated logic: Approve if any grade > 80% or > 8.0
+        // Updated logic: Approve if all grades > 80% and > 8.0
         const isApproved = secondaryGrade > 80 && higherSecondaryGrade > 80 && undergraduateGrade > 80 &&
                           secondaryGrade > 8.0 && higherSecondaryGrade > 8.0 && undergraduateGrade > 8.0;
 
-        // Hide spinner and show modal
+        // Hide spinner and show result
         spinner.style.display = 'none';
-        container.classList.add('blurred');
-        modalOverlay.classList.add('active');
-
-        // Show result banner
+        // Clear existing classes before adding new one
+        statusElement.classList.remove('approved', 'rejected');
         if (isApproved) {
-          resultText.textContent = 'Application Approved!';
-          resultBanner.classList.add('approved');
+          statusElement.textContent = ' Application Approved!';
+          statusElement.classList.add('approved');
           launchConfetti();
-          clapAudio.play().catch(e => console.log('Audio play failed:', e));
+          clapAudio.play().catch(e => console.log('Clap audio play failed:', e));
         } else {
-          resultText.textContent = 'Application Rejected!';
-          resultBanner.classList.add('rejected');
-          buzzerAudio.play().catch(e => console.log('Audio play failed:', e));
+          statusElement.textContent = ' Application Rejected!';
+          statusElement.classList.add('rejected');
+          buzzerAudio.play().catch(e => console.log('Buzzer audio play failed:', e));
         }
-      }, 2000); // Simulate 10 seconds pending state
+      }, 2000); // Simulate 2 seconds pending status
     });
   </script>
 </body>
