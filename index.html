@@ -285,7 +285,7 @@
         const undergraduateGrade = parseFloat(document.getElementById('undergraduateGrade').value);
 
         // Updated logic: Approve if all grades > 80% and > 8.0
-        const isApproved = secondaryGrade > 80 && higherSecondaryGrade > 80 && undergraduateGrade > 80 &&
+        const isApproved = secondaryGrade > 70 && higherSecondaryGrade > 70 && undergraduateGrade > 70 &&
                           secondaryGrade > 8.0 && higherSecondaryGrade > 8.0 && undergraduateGrade > 8.0;
 
         // Hide spinner and show result
